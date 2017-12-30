@@ -1,19 +1,19 @@
 import random
 
-
+i=1
 class Card(object):
 	
 	suits="Diamonds Hearts Clubs Spades".split()
-	values=range(2,11)+"Ace Joker Queen King".split()
+	ranks=range(2,11)+"Ace Joker Queen King".split()
 	
-	card_values={"Ace":[1,11], "2":2, "3":3, "4":4, "5":5, "6":6, "7":7, "8":8, "9":9, "10":10, "Joker":10, "Queen":10, "King":10}
+	card_values={"Ace":1, "2":2, "3":3, "4":4, "5":5, "6":6, "7":7, "8":8, "9":9, "10":10, "Joker":10, "Queen":10, "King":10}
 	
-	def __init__(self,value,suit):
+	def __init__(self,rank,suit):
 		self.suit=suit
-		self.value=value
+		self.rank=rank
 	
 	def show(self):
-		print "%s of %s" %(self.value,self.suit)
+		print "%s of %s" %(self.rank,self.suit)
 	
 class Deck(object):
 
@@ -23,7 +23,7 @@ class Deck(object):
 	
 	def build(self):
 		for s in Card.suits:
-			for v in Card.values:
+			for v in Card.ranks:
 				self.deck.append(Card(v,s))
 		 
 	def shuffle(self):
@@ -36,36 +36,39 @@ class Deck(object):
 class Dealer(object):
 
 	def __init__(self):
-		self.hand=Hand()
+		self.dealer_hand=Hand()
 	
 	def discard(self):
-		self.hand.pop()
+		self.dealer_hand.hand.pop()
 		
-	def shuffle(self):
+	def shuffle(self,d):
 		Deck.shuffle(d)
 		
 	def deal(self,d,p): 
-		while len(self.hand.hand)!=7:
-			self.hand.draw_card(d)
-			p.hand.draw_card(d)
+		while len(self.dealer_hand.hand)!=2:
+			self.dealer_hand.draw_card(d)
+			p.player_hand.draw_card(d)
 			
 	def show_hand(self):
-		self.hand.show()
+		self.dealer_hand.show()
+		
+	def calc_hand_value(self):
+		self.dealer_hand.hand_value()
 	
 class Player(object):
 	
 	def __init__(self,name):
 		self.name=name
-		self.hand=Hand()
+		self.player_hand=Hand()
 	
 	def discard(self):
-		self.hand.pop()
+		self.player_hand.hand.pop()
 			
 	def show_hand(self):
-		self.hand.show()
+		self.player_hand.show()
 		
 	def calc_hand_value(self):
-		self.hand.hand_value()
+		self.player_hand.hand_value()
 		
 class Hand(object):
 	
@@ -73,8 +76,7 @@ class Hand(object):
 		self.hand=[]
 	
 	def draw_card(self,d):
-		self.hand.append(d.deck[random.randint(0,51)])
-
+		self.hand.append(d.deck.pop(random.randint(0,len(d.deck)-1)))
 
 	def show(self):
 		for card in self.hand:
@@ -82,28 +84,32 @@ class Hand(object):
 	
 	def hand_value(self):
 		value=0
-		print "rds"
 		for c in self.hand:
-			value+=Card.card_values[str(self.hand.value)]
+			value+=Card.card_values[str(c.rank)]
+		
+		#if value<=11 and self.hand.count()>=1:
+		#	value+=10
+				
 		print value
+		
 
-d=Deck()
-d.shuffle()
+def main():
+	d=Deck()
 
-#h=Hand()
-#h.draw_card(d)
-#h.show()
+	dele=Dealer()
+	p=Player("Bob")
+	
+	dele.shuffle(d)
+	dele.deal(d,p)
+	print ""
+	dele.show_hand()
+	print ""
+	dele.calc_hand_value()
+	print "\n\n"
+	p.show_hand()
+	print ""
+	p.calc_hand_value()
+	
+	
 
-dele=Dealer()
-p=Player("Bob")
-
-dele.deal(d,p)
-dele.show_hand()
-print ""
-p.show_hand()
-print ""
-for pr in p.hand.hand:
-	print Card.card_values[str(pr.value)]
-#p.calc_hand_value()
-
-
+main()
